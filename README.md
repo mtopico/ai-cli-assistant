@@ -32,8 +32,6 @@ Install the packages from `requirements.txt`, including:
 
 ## How to run
 
-### Local Python run
-
 From the `ai-cli-assistant` folder:
 
 ```powershell
@@ -50,16 +48,4 @@ If you are running Ollama on your local machine instead of Docker, set:
 
 ```env
 ollama_host=http://localhost:11434
-```
-
-### Docker-based run from the workspace root
-
-If you want to use the provided Docker setup:
-
-```powershell
-docker compose up --build -d
-docker exec -it ai-engineer-py bash
-cd /workspace/ai-cli-assistant
-pip install -r requirements.txt
-python app/main.py
 ```
