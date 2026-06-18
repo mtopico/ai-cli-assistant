@@ -1,6 +1,7 @@
 from ollama import chat, Client
 from dotenv import load_dotenv
 from rich.console import Console
+from app.services.StoreChatService import StoreChatService
 import os
 
 class CommandController:
@@ -8,15 +9,21 @@ class CommandController:
     def __init__(self):
         load_dotenv()
         self.client = Client(os.getenv("ollama_host", "http://ollama:11434"))
-        self.model = os.getenv("ollama_model", "llama3")
         self.model_list = []
         self.console = Console()
+        self.force_loop_break = False
+        self.init_models()
+        self.store_chat_service = StoreChatService()
+        self.set_default()
+
+    def set_default(self):
+        self.model = os.getenv("ollama_model", "llama3")
         self.messages = [{
             "role": "system",
             "content": "You are a helpful and friendly assistant. Always provide clear and concise answers to the user's questions."
         }]
-        self.force_loop_break = False
-        self.init_models()
+        self.session_file = None
+        self.session_label = None
 
     def ask_what_to_do(self):
         user_input = self.console.input("[bold blue]What would you like to do? (/help to see commands): ")
@@ -33,9 +40,21 @@ class CommandController:
         self.console.print(f"[bold green]The AI assistant will behave as a [bold red]{personality_input}\n")
 
     def __send_message(self):
+
+        inline_commands = """
+            You can use the following inline commands during the conversation:
+            /save - Save the current conversation to a file
+            /restore - Restore a conversation from a file
+            /reset - Reset the conversation and start fresh
+            /help - List all general commands
+            /exit - Exit the program
+        """
+
+        self.console.print(f"[bold cyan]{inline_commands}")
+
         while True:
             assistance_response = ""
-            user_input = self.console.input("[bold blue]Tell me something (/help to see commands): ")
+            user_input = self.console.input("[bold blue]Tell me something: ")
 
             self.handle_user_input(user_input, lambda self, user_input: self.messages.append({'role': 'user','content': user_input}))
 
@@ -98,6 +117,15 @@ class CommandController:
         elif user_input == "/setmodel":
             self.force_loop_break = True
             self.set_model_list()
+        elif user_input == "/save":
+            self.force_loop_break = True
+            self.save_conversation()
+        elif user_input == "/restore":
+            self.force_loop_break = True
+            self.restore_conversation()
+        elif user_input == "/reset":
+            self.force_loop_break = True
+            self.reset_conversation()
         else:
             if callback:
                 callback(self, user_input)
@@ -147,3 +175,47 @@ class CommandController:
             self.console.print("[bold red]No models found from provider. This app needs a valid model to function properly.\n")
             self.end_program()
         
+    def save_conversation(self):
+        if self.session_file:
+            self.store_chat_service.save_chat(self.session_label, self.model, self.messages, session_file=self.session_file)
+        else:
+            user_input = self.console.input("[bold blue]Enter a label for this conversation: ")
+            if user_input.strip():
+                self.store_chat_service.save_chat(user_input.strip(), self.model, self.messages, session_file=self.session_file)
+
+        self.console.print(f"[bold green]Conversation saved\n")
+        self.ask_what_to_do()
+
+    def restore_conversation(self):
+        chats = self.store_chat_service.list_saved_chats()
+        if chats:
+            for index, chat in enumerate(chats, start=1):
+                self.console.print(f"[bold blue][{index}] [white]{chat['label']} - {chat['timestamp']}")
+            while True:
+                user_input = self.console.input("[bold blue]Select a conversation to restore by number (/exit to cancel): ")
+                try:
+                    if user_input == "/exit":
+                        self.ask_what_to_do()
+                        break
+
+                    selected_index = int(user_input) - 1
+
+                    if( selected_index < 0 or selected_index > len(chats)):
+                        self.console.print("[bold red]Invalid input. Please enter a valid number.\n")
+                    else:
+                        selected_chat = chats[selected_index]
+                        self.model = selected_chat["model"]
+                        self.messages = selected_chat["messages"]
+                        self.console.print(f"[bold green]Conversation restored\n")
+                        self.session_file = selected_chat["file_name"]
+                        self.session_label = selected_chat["label"]
+                        self.__send_message()
+                        break
+
+                except ValueError:
+                    self.console.print("[bold red]Invalid input. Please enter a valid number.\n")
+
+    def reset_conversation(self):
+        self.set_default()
+        self.console.print(f"[bold green]Conversation reset\n")
+        self.ask_what_to_do()

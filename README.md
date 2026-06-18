@@ -12,6 +12,12 @@ The app lets you:
 
 The main entrypoint is `app/main.py`.
 
+# ai-cli-assistant
+------------------------------------------------------
+
+This Python script, `CommandController.py`, is part of the `ai-cli-assistant` project, a simple command-line AI assistant that communicates with an Ollama model to provide responses in the terminal.
+
+
 ## Dependencies
 
 ### Runtime requirements
@@ -19,33 +25,3 @@ The main entrypoint is `app/main.py`.
 - Python 3.12 or compatible Python 3 environment
 - Access to an Ollama server
 - An available Ollama model, defaulting to `llama3`
-
-### Python packages
-
-Install the packages from `requirements.txt`, including:
-
-- `ollama`
-- `python-dotenv`
-- `httpx`
-- `pydantic`
-- `rich`
-
-## How to run
-
-From the `ai-cli-assistant` folder:
-
-```powershell
-pip install -r requirements.txt
-python app/main.py
-```
-
-Optional environment variables in `.env`:
-
-- `ollama_host` defaults to `http://ollama:11434`
-- `ollama_model` defaults to `llama3`
-
-If you are running Ollama on your local machine instead of Docker, set:
-
-```env
-ollama_host=http://localhost:11434
-```
