@@ -1,159 +1,186 @@
 # AI CLI Assistant
 
-A command-line AI assistant powered by Ollama that allows users to chat with local LLMs, switch between installed models, customize AI personas, and save or restore conversation sessions.
-
-## Overview
-
-AI CLI Assistant is a lightweight terminal-based chat application that connects to an Ollama server and provides an interactive conversational interface.
-
-The application automatically discovers available Ollama models and allows users to:
-
-- Chat with local AI models
-- Change AI personalities
-- Switch between installed models
-- Save conversations
-- Restore previous conversations
-- Reset chat sessions
-
-The application uses streaming responses for a real-time chat experience and stores conversation history locally in JSON format.
+A lightweight command-line AI assistant powered by Ollama that enables interactive conversations with local Large Language Models (LLMs). The application provides model switching, persona customization, chat session persistence, session restoration, and session deletion directly from the terminal.
 
 ---
 
-## Features
+# Features
 
-### AI Chat
+## Interactive AI Chat
 
-Start interactive conversations with locally hosted Ollama models.
+Chat with locally hosted Ollama models directly from the command line.
 
-```text
+Features include:
+
+- Streaming AI responses
+- Multi-turn conversations
+- Conversation memory within the current session
+- Support for any installed Ollama model
+
+Command:
+
+```bash
 /chat
 ```
 
-Responses are streamed live as they are generated.
-
 ---
 
-### Persona Customization
+## Persona Configuration
 
-Change how the AI behaves by defining a persona.
-
-```text
-/persona
-```
-
-Example:
-
-```text
-Set the AI persona: senior software engineer
-```
-
-The assistant will then behave according to the selected role.
-
----
-
-### Model Selection
-
-View and switch between installed Ollama models.
-
-```text
-/setmodel
-```
-
-The application automatically retrieves all available models from Ollama.
+Customize how the AI behaves by setting a persona.
 
 Examples:
 
-```text
-llama3
-deepseek-r1
-mistral
-codellama
+- Senior Software Engineer
+- DevOps Engineer
+- Technical Writer
+- Database Administrator
+- Python Instructor
+
+Command:
+
+```bash
+/persona
 ```
+
+The selected persona is applied as the system prompt for future conversations.
 
 ---
 
-### Conversation Persistence
+## Model Selection
 
-Save conversations to disk for future use.
+Switch between installed Ollama models at runtime.
 
-```text
-/save
+The application automatically retrieves available models from Ollama and displays them for selection.
+
+Command:
+
+```bash
+/setmodel
 ```
 
-Each conversation stores:
+Examples:
 
-- Label
+- llama3
+- mistral
+- deepseek-r1
+- codellama
+
+---
+
+## Save Conversations
+
+Save the current conversation to disk for future use.
+
+Saved sessions include:
+
+- Session label
 - Model used
 - Timestamp
 - Complete message history
 
-Sessions are saved as JSON files.
+Command:
+
+```bash
+/save
+```
+
+### Smart Save Behavior
+
+- New conversations create a new session file.
+- Restored conversations update the existing session file instead of creating duplicates.
 
 ---
 
-### Restore Previous Conversations
+## Restore Conversations
 
-Load previously saved conversations.
+Restore a previously saved conversation.
 
-```text
+Command:
+
+```bash
 /restore
 ```
 
-When restored:
+When a conversation is restored:
 
-- Previous messages are loaded
+- Message history is loaded
 - Original model is restored
-- Conversation can continue from where it stopped
+- Session metadata is loaded
+- Conversation can continue seamlessly
 
 ---
 
-### Reset Conversation
+## Delete Conversations
 
-Clear the current session and start fresh.
+Delete the currently restored conversation.
 
-```text
+Command:
+
+```bash
+/delete
+```
+
+Notes:
+
+- A conversation must first be restored using `/restore`
+- The currently loaded session file will be deleted
+- The application automatically resets after deletion
+
+---
+
+## Reset Conversation
+
+Reset the application to a fresh session.
+
+Command:
+
+```bash
 /reset
 ```
 
-This restores:
+This action:
 
-- Default system prompt
-- Default model
-- Empty conversation history
+- Clears conversation history
+- Resets the system prompt
+- Restores the default model
+- Clears active session information
 
 ---
 
-### Command Help
+## Help Menu
 
-Display available commands.
+Display all available commands.
 
-```text
+Command:
+
+```bash
 /help
 ```
 
 ---
 
-### Exit Application
+## Exit Application
 
-Close the assistant.
+Exit the application safely.
 
-```text
+Command:
+
+```bash
 /exit
 ```
 
 ---
 
-## Requirements
+# Requirements
 
-### Python
+## Software Requirements
 
-Python 3.10+ recommended.
+- Python 3.10+
+- Ollama installed and running
+- At least one Ollama model installed
 
-### Ollama
-
-Install Ollama and ensure at least one model is available.
-
-Example:
+Install a model:
 
 ```bash
 ollama pull llama3
@@ -167,50 +194,46 @@ ollama list
 
 ---
 
-## Python Dependencies
+# Installation
 
-All dependencies are listed in `requirements.txt`.
+## Clone Repository
 
-### Install Dependencies
+```bash
+git clone https://github.com/mtopico/ai-cli-assistant.git
+cd ai-cli-assistant
+```
 
-Create and activate a virtual environment:
+## Create Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-Linux/macOS:
+Activate the environment:
+
+### Linux / macOS
 
 ```bash
 source .venv/bin/activate
 ```
 
-Windows:
+### Windows
 
 ```cmd
 .venv\Scripts\activate
 ```
 
-Install packages:
+## Install Dependencies
+
+Install all required packages from `requirements.txt`.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Installed packages include:
-
-- ollama
-- rich
-- python-dotenv
-- httpx
-- pydantic
-- tqdm
-
-and their supporting dependencies.
-
 ---
 
-## Configuration
+# Configuration
 
 Create a `.env` file in the project root.
 
@@ -222,17 +245,17 @@ ollama_model=llama3
 session_storage_path=app/storage/sessions
 ```
 
-### Configuration Options
+## Environment Variables
 
-| Variable | Description | Default |
-|-----------|-------------|----------|
-| `ollama_host` | Ollama server URL | `http://ollama:11434` |
-| `ollama_model` | Default model to use | `llama3` |
-| `session_storage_path` | Directory for saved conversations | `app/storage/sessions` |
+| Variable | Description |
+|-----------|-------------|
+| `ollama_host` | Ollama server URL |
+| `ollama_model` | Default model loaded at startup |
+| `session_storage_path` | Directory where conversation sessions are stored |
 
 ---
 
-## Running the Application
+# Running the Application
 
 From the project root:
 
@@ -240,67 +263,67 @@ From the project root:
 python -m app.main
 ```
 
-or
+Alternatively:
 
 ```bash
 cd app
 python main.py
 ```
 
-After startup you will see:
+Upon startup:
 
 ```text
 AI Assistant using Ollama
 Type '/exit' to quit
-
-Default model used is set in the .env file.
-Use /setmodel to change it.
 ```
+
+The default model configured in `.env` will be loaded automatically.
 
 ---
 
-## Available Commands
+# Available Commands
 
 | Command | Description |
 |----------|-------------|
 | `/help` | Show available commands |
-| `/persona` | Set AI personality |
-| `/chat` | Start a conversation |
-| `/setmodel` | Select an Ollama model |
+| `/chat` | Start chatting with the AI |
+| `/persona` | Configure AI persona |
+| `/setmodel` | Change Ollama model |
 | `/save` | Save current conversation |
-| `/restore` | Restore saved conversation |
-| `/reset` | Reset current conversation |
+| `/restore` | Restore a saved conversation |
+| `/delete` | Delete the currently restored conversation |
+| `/reset` | Reset the current session |
 | `/exit` | Exit the application |
 
 ---
 
-## Conversation Storage
+# Conversation Storage
 
-Saved conversations are stored as JSON files.
+Conversations are stored as JSON files inside the configured storage directory.
 
 Example structure:
 
 ```json
 {
-    "label": "Python Help Session",
-    "model": "llama3",
-    "timestamp": "2026-06-18T15:30:22",
-    "messages": [
-        {
-            "role": "system",
-            "content": "You are a helpful assistant"
-        },
-        {
-            "role": "user",
-            "content": "Explain Python generators"
-        }
-    ]
+  "label": "Python Learning Session",
+  "model": "llama3",
+  "timestamp": "2026-06-20T14:30:00",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a Python Instructor."
+    },
+    {
+      "role": "user",
+      "content": "Explain list comprehensions."
+    }
+  ]
 }
 ```
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 ai-cli-assistant/
@@ -312,6 +335,9 @@ ai-cli-assistant/
 │   ├── services/
 │   │   └── StoreChatService.py
 │   │
+│   ├── storage/
+│   │   └── sessions/
+│   │
 │   └── main.py
 │
 ├── requirements.txt
@@ -321,18 +347,43 @@ ai-cli-assistant/
 
 ---
 
-## How It Works
+# Architecture
 
-1. Application starts.
-2. Connects to Ollama.
-3. Retrieves available models.
-4. Loads the default model from `.env`.
-5. Waits for user commands.
-6. Streams AI responses in real time.
-7. Allows saving and restoring conversation sessions.
+## CommandController
+
+Responsible for:
+
+- Command processing
+- User interaction
+- Chat lifecycle management
+- Ollama communication
+- Model switching
+- Persona configuration
+- Session management
+
+## StoreChatService
+
+Responsible for:
+
+- Saving conversations
+- Restoring conversations
+- Listing saved sessions
+- Deleting session files
 
 ---
 
-## License
+# Application Flow
 
-This project is provided as-is for educational and personal use.
+1. Load environment configuration.
+2. Connect to Ollama.
+3. Retrieve installed models.
+4. Load the default model.
+5. Wait for user commands.
+6. Stream AI responses.
+7. Save, restore, update, or delete sessions as needed.
+
+---
+
+# License
+
+This project is provided for educational, learning, and personal use.
