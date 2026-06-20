@@ -32,3 +32,10 @@ class StoreChatService:
                 chat_data["file_name"] = file
                 chats.append(chat_data)
         return chats
+
+    def delete_chat(self, file_name):
+        file_path = f"{self.storage_path}/{file_name}"
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return True
+        return False

@@ -2,6 +2,7 @@ from ollama import chat, Client
 from dotenv import load_dotenv
 from rich.console import Console
 from app.services.StoreChatService import StoreChatService
+from datetime import datetime
 import os
 
 class CommandController:
@@ -46,6 +47,7 @@ class CommandController:
             /save - Save the current conversation to a file
             /restore - Restore a conversation from a file
             /reset - Reset the conversation and start fresh
+            /delete - Delete the current conversation file (only available if a conversation is loaded)
             /help - List all general commands
             /exit - Exit the program
         """
@@ -126,6 +128,9 @@ class CommandController:
         elif user_input == "/reset":
             self.force_loop_break = True
             self.reset_conversation()
+        elif user_input == "/delete":
+            self.force_loop_break = True
+            self.delete_conversation()
         else:
             if callback:
                 callback(self, user_input)
@@ -190,7 +195,9 @@ class CommandController:
         chats = self.store_chat_service.list_saved_chats()
         if chats:
             for index, chat in enumerate(chats, start=1):
-                self.console.print(f"[bold blue][{index}] [white]{chat['label']} - {chat['timestamp']}")
+                timestamp = datetime.fromisoformat(chat["timestamp"])
+                formatted_date = timestamp.strftime("%Y-%m-%d %I:%M:%S %p") if 'timestamp' in chat else "Unknown"
+                self.console.print(f"[bold blue][{index}] [white]{chat['label']} - {formatted_date}")
             while True:
                 user_input = self.console.input("[bold blue]Select a conversation to restore by number (/exit to cancel): ")
                 try:
@@ -219,3 +226,16 @@ class CommandController:
         self.set_default()
         self.console.print(f"[bold green]Conversation reset\n")
         self.ask_what_to_do()
+
+    def delete_conversation(self):
+        if self.session_file:
+            is_deleted = self.store_chat_service.delete_chat(self.session_file)
+            if is_deleted:
+                self.set_default()
+                self.console.print(f"[bold green]Conversation deleted\n")
+            else:
+                self.console.print(f"[bold red]No conversation file to delete\n")
+            self.ask_what_to_do()
+        else:
+            self.console.print(f"[bold red]No conversation loaded. Restore a conversation first.\n")
+            self.ask_what_to_do()
