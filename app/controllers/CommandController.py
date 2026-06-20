@@ -9,7 +9,7 @@ class CommandController:
     
     def __init__(self):
         load_dotenv()
-        self.client = Client(os.getenv("ollama_host", "http://ollama:11434"))
+        self.client = Client(os.environ.get("OLLAMA_HOST", "http://ollama:11434"))
         self.model_list = []
         self.console = Console()
         self.force_loop_break = False
@@ -18,7 +18,7 @@ class CommandController:
         self.set_default()
 
     def set_default(self):
-        self.model = os.getenv("ollama_model", "llama3")
+        self.model = os.environ.get("OLLAMA_MODEL", "llama3")
         self.messages = [{
             "role": "system",
             "content": "You are a helpful and friendly assistant. Always provide clear and concise answers to the user's questions."

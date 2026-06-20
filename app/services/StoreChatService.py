@@ -1,10 +1,12 @@
 import json
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 
 class StoreChatService:
     def __init__(self):
-        self.storage_path = os.getenv("session_storage_path", "app/storage/sessions")
+        load_dotenv()
+        self.storage_path = os.environ.get("SESSION_STORAGE_PATH", "app/storage/sessions")
 
     def save_chat(self, label, model, messages, session_file=None):
 
