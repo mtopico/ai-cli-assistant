@@ -165,7 +165,7 @@ class CommandController:
 
                     selected_index = int(user_input) - 1
 
-                    if( selected_index < 0 or selected_index > len(self.model_list)):
+                    if( selected_index < 0 or selected_index >= len(self.model_list)):
                         self.console.print("[bold red]Invalid input. Please enter a valid number.\n")
                     else:
                         self.model = self.model_list[selected_index]
@@ -207,7 +207,7 @@ class CommandController:
 
                     selected_index = int(user_input) - 1
 
-                    if( selected_index < 0 or selected_index > len(chats)):
+                    if( selected_index < 0 or selected_index >= len(chats)):
                         self.console.print("[bold red]Invalid input. Please enter a valid number.\n")
                     else:
                         selected_chat = chats[selected_index]
